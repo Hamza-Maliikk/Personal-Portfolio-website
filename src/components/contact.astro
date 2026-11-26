@@ -1,3 +1,16 @@
+---
+// Option 1 (env file): .env mein PUBLIC_ keys daalein
+// Option 2 (seedha): neeche "YOUR_..." ki jagah values paste karein
+const PUBLIC_KEY =
+  import.meta.env.PUBLIC_EMAILJS_PUBLIC_KEY ?? "YOUR_PUBLIC_KEY";
+const SERVICE_ID =
+  import.meta.env.PUBLIC_EMAILJS_SERVICE_ID ?? "YOUR_SERVICE_ID";
+const NOTIFY_TEMPLATE_ID =
+  import.meta.env.PUBLIC_EMAILJS_NOTIFY_TEMPLATE_ID ?? "template_6axleu7";
+const AUTOREPLY_TEMPLATE_ID =
+  import.meta.env.PUBLIC_EMAILJS_AUTOREPLY_TEMPLATE_ID ?? "template_r28jagw";
+---
+
 <section id="contact" class="w-full py-12 border-t border-[#ffffff10]">
   <div class="max-w-5xl mx-auto">
     <h2 class="text-lg text-[var(--sec)] mb-2 shiny-sec">Let's talk</h2>
@@ -11,15 +24,18 @@
         </p>
         <div class="flex items-center gap-2">
           <span>Location:</span>
-          <span class="text-[var(--white)]">Karachi,  Pakistan</span>
+          <span class="text-[var(--white)]">Karachi, Pakistan</span>
         </div>
       </div>
 
       <div>
         <form
           id="contact-form"
-          method="POST"
           class="flex flex-col gap-4"
+          data-public-key={PUBLIC_KEY}
+          data-service-id={SERVICE_ID}
+          data-notify-template={NOTIFY_TEMPLATE_ID}
+          data-autoreply-template={AUTOREPLY_TEMPLATE_ID}
         >
           <input
             type="text"
@@ -43,8 +59,9 @@
             class="px-4 py-2 bg-[#1414149c] text-[var(--white)] border border-[var(--white-icon-tr)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--sec)] resize-none"
           ></textarea>
           <button
+            id="submit-btn"
             type="submit"
-            class="px-4 py-2 bg-[var(--white-icon-tr)] text-[var(--white)] rounded-lg opacity-60 transition-opacity border border-[var(--white-icon-tr)] hover:opacity-100 hover:bg-[var(--white-icon-tr)]"
+            class="px-4 py-2 bg-[var(--white-icon-tr)] text-[var(--white)] rounded-lg opacity-60 transition-opacity border border-[var(--white-icon-tr)] hover:opacity-100 hover:bg-[var(--white-icon-tr)] disabled:cursor-not-allowed"
           >
             Submit
           </button>
@@ -62,16 +79,16 @@
 
 <script is:inline src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"></script>
 <script is:inline>
-  const PUBLIC_KEY = "YOUR_PUBLIC_KEY";
-  const SERVICE_ID = "YOUR_SERVICE_ID";
-  const NOTIFY_TEMPLATE_ID = "template_6axleu7";    // email to you
-  const AUTOREPLY_TEMPLATE_ID = "template_r28jagw"; // thank-you to visitor
-
-  emailjs.init({ publicKey: PUBLIC_KEY });
-
   const form = document.getElementById("contact-form");
   const formMessage = document.getElementById("form-message");
   const submitBtn = document.getElementById("submit-btn");
+
+  const PUBLIC_KEY = form.dataset.publicKey;
+  const SERVICE_ID = form.dataset.serviceId;
+  const NOTIFY_TEMPLATE_ID = form.dataset.notifyTemplate;
+  const AUTOREPLY_TEMPLATE_ID = form.dataset.autoreplyTemplate;
+
+  emailjs.init({ publicKey: PUBLIC_KEY });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -79,10 +96,10 @@
     submitBtn.textContent = "Sending...";
 
     try {
-      // 1. Message arrives in your inbox
+      // 1. Message aapke inbox mein
       await emailjs.sendForm(SERVICE_ID, NOTIFY_TEMPLATE_ID, form);
 
-      // 2. Auto-reply to the visitor (don't fail the form if this one errors)
+      // 2. Visitor ko auto-reply (fail ho to form fail nahi hoga)
       try {
         await emailjs.sendForm(SERVICE_ID, AUTOREPLY_TEMPLATE_ID, form);
       } catch (err) {
